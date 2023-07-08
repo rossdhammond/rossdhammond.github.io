@@ -4,7 +4,13 @@
   <title>Web Audio API Example</title>
 </head>
 <body>
-  <button onclick="playAudio()">Play Audio</button>
+  <label for="track-select">Select a Music Track:</label>
+  <select id="track-select">
+    <option value="jazz">Jazz</option>
+    <option value="rock">Rock</option>
+    <option value="musical">Musical</option>
+  </select>
+  <button onclick="playAudio()">Play Selected Track</button>
 
   <script>
     function playAudio() {
@@ -13,7 +19,19 @@
 
       // Create a new audio element
       const audioElement = document.createElement('audio');
-      audioElement.src = 'jazz-music.wav';
+
+      // Get the selected track from the dropdown menu
+      const trackSelect = document.getElementById('track-select');
+      const selectedTrack = trackSelect.value;
+
+      // Set the source of the audio element based on the selected track
+      if (selectedTrack === 'jazz') {
+        audioElement.src = 'jazz-music.wav';
+      } else if (selectedTrack === 'rock') {
+        audioElement.src = 'pop-music.wav';
+      } else if (selectedTrack === 'musical') {
+        audioElement.src = 'musical-music.wav';
+      }
 
       // Create an audio source from the audio element
       const audioSource = audioContext.createMediaElementSource(audioElement);
