@@ -10,6 +10,21 @@
     <option value="pop">Pop</option>
     <option value="musical">Musical</option>
   </select>
+  
+  <label for="seat-select">Select Seat Position:</label>
+  <select id="seat-select" onchange="selectSeatPosition()">
+    <option value="1">Seat Position 1</option>
+    <option value="2">Seat Position 2</option>
+    <option value="3">Seat Position 3</option>
+    <option value="4">Seat Position 4</option>
+    <option value="5">Seat Position 5</option>
+    <option value="6">Seat Position 6</option>
+    <option value="7">Seat Position 7</option>
+    <option value="8">Seat Position 8</option>
+    <option value="9">Seat Position 9</option>
+    <option value="10">Seat Position 10</option>
+  </select>
+
   <button onclick="playAudio()">Play Selected Track</button>
   <button onclick="stopAudio()">Stop</button>
 
@@ -17,6 +32,7 @@
     let audioContext;
     let audioElement;
     let sourceNode;
+    let convolvers = [];
 
     function playAudio() {
       // Create an audio context if it doesn't exist
@@ -27,24 +43,33 @@
       // Stop any previously playing audio
       stopAudio();
 
-      // Create a convolver node
-      const convolver = audioContext.createConvolver();
+      // Create a convolver node for each seat position if they don't exist
+      if (convolvers.length === 0) {
+        for (let i = 0; i < 10; i++) {
+          const convolver = audioContext.createConvolver();
+          convolvers.push(convolver);
+        }
+      }
 
-      // Load the impulse response audio file
-      const impulseResponseURL = 'impulse-response1.wav';
-      const impulseResponseRequest = new XMLHttpRequest();
-      impulseResponseRequest.open('GET', impulseResponseURL, true);
-      impulseResponseRequest.responseType = 'arraybuffer';
+      // Load the impulse response audio files for each convolver node
+      for (let i = 0; i < convolvers.length; i++) {
+        const convolver = convolvers[i];
+        const impulseResponseURL = `path/to/impulse-response${i + 1}.wav`;
 
-      impulseResponseRequest.onload = function() {
-        const audioData = impulseResponseRequest.response;
-        audioContext.decodeAudioData(audioData, function(buffer) {
-          // Set the buffer as the impulse response for the convolver
-          convolver.buffer = buffer;
-        });
-      };
+        const impulseResponseRequest = new XMLHttpRequest();
+        impulseResponseRequest.open('GET', impulseResponseURL, true);
+        impulseResponseRequest.responseType = 'arraybuffer';
 
-      impulseResponseRequest.send();
+        impulseResponseRequest.onload = function() {
+          const audioData = impulseResponseRequest.response;
+          audioContext.decodeAudioData(audioData, function(buffer) {
+            // Set the buffer as the impulse response for the convolver
+            convolver.buffer = buffer;
+          });
+        };
+
+        impulseResponseRequest.send();
+      }
 
       // Create a new audio element
       audioElement = document.createElement('audio');
@@ -65,14 +90,30 @@
       // Create an audio source from the audio element
       sourceNode = audioContext.createMediaElementSource(audioElement);
 
-      // Connect the audio source to the convolver node
-      sourceNode.connect(convolver);
-
-      // Connect the convolver node to the audio context's destination (speakers)
-      convolver.connect(audioContext.destination);
+      // Connect the audio source to the audio context's destination (initially without convolver)
+      sourceNode.connect(audioContext.destination);
 
       // Play the audio
       audioElement.play();
+    }
+
+    function selectSeatPosition() {
+      // Get the selected seat position from the dropdown menu
+      const seatSelect = document.getElementById('seat-select');
+      const selectedSeat = parseInt(seatSelect.value, 10);
+
+      // Disconnect all convolvers from the audio context's destination
+      convolvers.forEach(function(convolver) {
+        convolver.disconnect(audioContext.destination);
+      });
+
+      // Connect the selected convolver to the audio context's destination
+      if (selectedSeat > 0 && selectedSeat <= convolvers.length) {
+        const convolver = convolvers[selectedSeat - 1];
+        sourceNode.disconnect();
+        sourceNode.connect(convolver);
+        convolver.connect(audioContext.destination);
+      }
     }
 
     function stopAudio() {
