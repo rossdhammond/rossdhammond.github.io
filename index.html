@@ -54,7 +54,7 @@
       // Load the impulse response audio files for each convolver node
       for (let i = 0; i < convolvers.length; i++) {
         const convolver = convolvers[i];
-        const impulseResponseURL = `path/to/impulse-response${i + 1}.wav`;
+        const impulseResponseURL = `impulse-response${i + 1}.wav`;
 
         const impulseResponseRequest = new XMLHttpRequest();
         impulseResponseRequest.open('GET', impulseResponseURL, true);
@@ -80,11 +80,11 @@
 
       // Set the source of the audio element based on the selected track
       if (selectedTrack === 'jazz') {
-        audioElement.src = 'path/to/jazz-music.wav';
+        audioElement.src = 'jazz-music.wav';
       } else if (selectedTrack === 'pop') {
-        audioElement.src = 'path/to/pop-music.wav';
+        audioElement.src = 'pop-music.wav';
       } else if (selectedTrack === 'musical') {
-        audioElement.src = 'path/to/musical-music.wav';
+        audioElement.src = 'musical-music.wav';
       }
 
       // Create an audio source from the audio element
