@@ -7,21 +7,31 @@
   <label for="track-select">Select a Music Track:</label>
   <select id="track-select">
     <option value="jazz">Jazz</option>
-    <option value="rock">Rock</option>
+    <option value="pop">Pop</option>
     <option value="musical">Musical</option>
   </select>
   <button onclick="playAudio()">Play Selected Track</button>
+  <button onclick="stopAudio()">Stop</button>
 
   <script>
+    let audioContext;
+    let audioElement;
+    let sourceNode;
+
     function playAudio() {
-      // Create an audio context
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      // Create an audio context if it doesn't exist
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      // Stop any previously playing audio
+      stopAudio();
 
       // Create a convolver node
       const convolver = audioContext.createConvolver();
 
       // Load the impulse response audio file
-      const impulseResponseURL = 'impulse-response1.wav';
+      const impulseResponseURL = 'path/to/impulse-response.wav';
       const impulseResponseRequest = new XMLHttpRequest();
       impulseResponseRequest.open('GET', impulseResponseURL, true);
       impulseResponseRequest.responseType = 'arraybuffer';
@@ -37,7 +47,7 @@
       impulseResponseRequest.send();
 
       // Create a new audio element
-      const audioElement = document.createElement('audio');
+      audioElement = document.createElement('audio');
 
       // Get the selected track from the dropdown menu
       const trackSelect = document.getElementById('track-select');
@@ -45,24 +55,36 @@
 
       // Set the source of the audio element based on the selected track
       if (selectedTrack === 'jazz') {
-        audioElement.src = 'jazz-music.wav';
-      } else if (selectedTrack === 'rock') {
-        audioElement.src = 'pop-music.wav';
+        audioElement.src = 'path/to/jazz-music.wav';
+      } else if (selectedTrack === 'pop') {
+        audioElement.src = 'path/to/pop-music.wav';
       } else if (selectedTrack === 'musical') {
-        audioElement.src = 'musical-music.wav';
+        audioElement.src = 'path/to/musical-music.wav';
       }
 
       // Create an audio source from the audio element
-      const audioSource = audioContext.createMediaElementSource(audioElement);
+      sourceNode = audioContext.createMediaElementSource(audioElement);
 
       // Connect the audio source to the convolver node
-      audioSource.connect(convolver);
+      sourceNode.connect(convolver);
 
       // Connect the convolver node to the audio context's destination (speakers)
       convolver.connect(audioContext.destination);
 
       // Play the audio
       audioElement.play();
+    }
+
+    function stopAudio() {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+      }
+
+      if (sourceNode) {
+        sourceNode.disconnect();
+        sourceNode = null;
+      }
     }
   </script>
 </body>
