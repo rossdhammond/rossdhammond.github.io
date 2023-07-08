@@ -28,6 +28,10 @@
   <button onclick="playAudio()">Play Selected Track</button>
   <button onclick="stopAudio()">Stop</button>
 
+  <div id="image-container">
+    <img id="seat-image" src="seat-position1.jpg" alt="Seat Position 1">
+  </div>
+
   <script>
     let audioContext;
     let audioElement;
@@ -114,6 +118,11 @@
         sourceNode.connect(convolver);
         convolver.connect(audioContext.destination);
       }
+
+      // Update the seat position image
+      const seatImage = document.getElementById('seat-image');
+      seatImage.src = `seat-position${selectedSeat}.jpeg`;
+      seatImage.alt = `Seat Position ${selectedSeat}`;
     }
 
     function stopAudio() {
